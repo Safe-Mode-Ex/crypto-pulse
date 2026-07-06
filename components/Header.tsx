@@ -14,7 +14,7 @@ const ComponentName = () => {
       <div className="main-container inner">
         <Link href="/">
           <Image
-            src="logo.svg"
+            src="/logo.svg"
             alt="CryptoPulse logo"
             width="132"
             height="40"
