@@ -4,8 +4,20 @@ interface ComponentNameProps {
   propName: unknown;
 }
 
-const ComponentName: FC<ComponentNameProps> = ({ propName }) => {
-  return <p className="text-3xl text-indigo-500">CryptoPulse</p>;
+const Page: FC<ComponentNameProps> = () => {
+  return (
+    <main className="main-container">
+      <section className="home-grid">
+        <p>Coin Overview</p>
+
+        <p>Trending Coins</p>
+      </section>
+
+      <section className="w-full mt-7 space-y-4">
+        <p>Categories</p>
+      </section>
+    </main>
+  );
 };
 
-export default ComponentName;
+export default Page;
