@@ -4,14 +4,25 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { fetcher } from "@/lib/coin-paprika.actions";
 import DataTable from "../DataTable";
+import { TrendingCoinsFallback } from "./fallback";
 
 const TrendingCoins = async () => {
-  const trendingCoins = await fetcher<TickerDetailsData[]>("/tickers");
-  const sortedTrendingCoins = trendingCoins.sort((a: TickerDetailsData, b: TickerDetailsData) => {
-    const changeA = Math.abs(a.quotes?.USD?.percent_change_24h || 0);
-    const changeB = Math.abs(b.quotes?.USD?.percent_change_24h || 0);
-    return changeB - changeA;
-  });
+  let trendingCoins: TickerDetailsData[] = [];
+
+  try {
+    trendingCoins = await fetcher<TickerDetailsData[]>("/tickers");
+  } catch (error) {
+    console.error("TrendingCoins fetch failed:", error);
+    return <TrendingCoinsFallback />;
+  }
+
+  const sortedTrendingCoins = [...trendingCoins].sort(
+    (a: TickerDetailsData, b: TickerDetailsData) => {
+      const changeA = Math.abs(a.quotes?.USD?.percent_change_24h || 0);
+      const changeB = Math.abs(b.quotes?.USD?.percent_change_24h || 0);
+      return changeB - changeA;
+    },
+  );
 
   const columns: DataTableColumn<TickerDetailsData>[] = [
     {
