@@ -4,11 +4,15 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'assets.coingecko.com',
-      }
-    ]
-  }
+        protocol: "https",
+        hostname: "static.coinpaprika.com",
+      },
+      {
+        protocol: "https",
+        hostname: "coinpaprika.com",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

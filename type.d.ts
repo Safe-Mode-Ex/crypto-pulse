@@ -11,10 +11,10 @@ interface CandlestickChartProps {
   coinId: string;
   height?: number;
   children?: React.ReactNode;
-  mode?: 'historical' | 'live';
+  mode?: "historical" | "live";
   initialPeriod?: Period;
-  liveInterval: '1s' | '1m';
-  setLiveInterval: (interval: '1s' | '1m') => void;
+  liveInterval: "1s" | "1m";
+  setLiveInterval: (interval: "1s" | "1m") => void;
 }
 
 interface ConverterProps {
@@ -36,7 +36,7 @@ interface Ticker {
   trade_url: string;
 }
 
-type Period = 'daily' | 'weekly' | 'monthly' | '3months' | '6months' | 'yearly' | 'max';
+type Period = "daily" | "weekly" | "monthly" | "3months" | "6months" | "yearly" | "max";
 
 interface CoinMarketData {
   id: string;
@@ -67,20 +67,13 @@ interface CoinMarketData {
 }
 
 interface TrendingCoin {
-  item: {
-    id: string;
-    name: string;
-    symbol: string;
-    market_cap_rank: number;
-    thumb: string;
-    large: string;
-    data: {
-      price: number;
-      price_change_percentage_24h: {
-        usd: number;
-      };
-    };
-  };
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  is_new: false;
+  is_active: true;
+  type: string;
 }
 
 interface SearchCoin {
@@ -177,49 +170,24 @@ interface CoinDetailsData {
   id: string;
   name: string;
   symbol: string;
-  asset_platform_id?: string | null;
-  detail_platforms?: Record<
-    string,
-    {
-      geckoterminal_url: string;
-      contract_address: string;
-    }
-  >;
-  image: {
-    large: string;
-    small: string;
-  };
-  market_data: {
-    current_price: {
-      usd: number;
-      [key: string]: number;
-    };
-    price_change_24h_in_currency: {
-      usd: number;
-    };
-    price_change_percentage_24h_in_currency: {
-      usd: number;
-    };
-    price_change_percentage_30d_in_currency: {
-      usd: number;
-    };
-    market_cap: {
-      usd: number;
-    };
-    total_volume: {
-      usd: number;
+  rank: number;
+  is_new: boolean;
+  is_active: boolean;
+  type: string;
+  logo: string;
+}
+
+interface TickerDetailsData {
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  quotes: {
+    USD: {
+      price: number;
+      percent_change_24h: number;
     };
   };
-  market_cap_rank: number;
-  description: {
-    en: string;
-  };
-  links: {
-    homepage: string[];
-    blockchain_site: string[];
-    subreddit_url: string;
-  };
-  tickers: Ticker[];
 }
 
 interface LiveDataProps {
@@ -250,7 +218,7 @@ interface Category {
 interface UseCoinGeckoWebSocketProps {
   coinId: string;
   poolId: string;
-  liveInterval?: '1s' | '1m';
+  liveInterval?: "1s" | "1m";
 }
 
 interface UseCoinGeckoWebSocketReturn {
@@ -279,12 +247,12 @@ interface DataTableProps<T> {
   bodyCellClassName?: string;
 }
 
-type ButtonSize = 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg';
+type ButtonSize = "default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg";
 
 type PaginationLinkProps = {
   isActive?: boolean;
   size?: ButtonSize;
-} & React.ComponentProps<'a'>;
+} & React.ComponentProps<"a">;
 
 interface Pagination {
   currentPage: number;
@@ -296,7 +264,7 @@ interface HeaderProps {
   trendingCoins: TrendingCoin[];
 }
 
-type SearchItemCoin = SearchCoin | TrendingCoin['item'];
+type SearchItemCoin = SearchCoin | TrendingCoin["item"];
 
 interface SearchItemProps {
   coin: SearchItemCoin;
