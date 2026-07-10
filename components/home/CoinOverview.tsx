@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fetcher } from "@/lib/coin-paprika.actions";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getOHLCDataFromResponse } from "@/lib/utils";
 import { CoinOverviewFallback } from "./fallback";
 import CandlestickChart from "../CandlestickChart";
 
@@ -13,26 +13,21 @@ const CoinOverview = async () => {
     const results = await Promise.all([
       fetcher<CoinDetailsData>("/coins/btc-bitcoin"),
       fetcher<TickerDetailsData>("/tickers/btc-bitcoin"),
+      fetcher<OHLCResponse>(
+        "/market/kline",
+        {
+          tradeType: "SPOT",
+          symbol: "BTC-USDT",
+          interval: "1hour",
+        },
+        true,
+      ),
     ]);
 
     coin = results[0];
     ticker = results[1];
-
-    const coinOHLCRawData = await fetcher<OHLCResponse>(
-      "/market/kline",
-      {
-        tradeType: "SPOT",
-        symbol: "BTC-USDT",
-        interval: "1hour",
-      },
-      true,
-    );
-
-    coinOHLCData = coinOHLCRawData.data.list
-      .reverse()
-      .map((times) => times.map((time) => parseFloat(time.toString())) as OHLCData);
-
-    console.log(coinOHLCData);
+    const coinOHLCRawData = results[2];
+    coinOHLCData = getOHLCDataFromResponse(coinOHLCRawData);
   } catch (error) {
     console.error("CoinOverview fetch failed:", error);
     return <CoinOverviewFallback />;

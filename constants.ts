@@ -5,6 +5,10 @@ import {
   DeepPartial,
 } from "lightweight-charts";
 
+const DAY_IN_SECONDS = 24 * 60 * 60;
+const MONTH_IN_SECONDS = DAY_IN_SECONDS * 30;
+const YEAR_IN_SECONDS = 365 * DAY_IN_SECONDS;
+
 export const navItems = [
   {
     label: "Home",
@@ -91,26 +95,54 @@ export const getChartConfig = (
   },
 });
 
+const endAt = Math.floor(Date.now() / 1000);
+
 export const PERIOD_CONFIG: Record<
   Period,
-  { days: number | string; interval?: "1hour" | "daily" }
+  { endAt?: number; startAt?: number; interval: "1hour" | "1day" }
 > = {
-  daily: { days: 1, interval: "1hour" },
-  weekly: { days: 7, interval: "1hour" },
-  monthly: { days: 30, interval: "1hour" },
-  "3months": { days: 90, interval: "daily" },
-  "6months": { days: 180, interval: "daily" },
-  yearly: { days: 365 },
-  max: { days: "max" },
+  "1day": {
+    endAt,
+    startAt: endAt - DAY_IN_SECONDS,
+    interval: "1hour",
+  },
+  "1week": {
+    endAt,
+    startAt: endAt - 7 * DAY_IN_SECONDS,
+    interval: "1hour",
+  },
+  "1month": {
+    endAt,
+    startAt: endAt - MONTH_IN_SECONDS,
+    interval: "1hour",
+  },
+  "3months": {
+    endAt,
+    startAt: endAt - 3 * MONTH_IN_SECONDS,
+    interval: "1day",
+  },
+  "6months": {
+    endAt,
+    startAt: endAt - 6 * MONTH_IN_SECONDS,
+    interval: "1day",
+  },
+  "1year": {
+    endAt,
+    startAt: endAt - YEAR_IN_SECONDS,
+    interval: "1day",
+  },
+  max: {
+    interval: "1day",
+  },
 };
 
 export const PERIOD_BUTTONS: { value: Period; label: string }[] = [
-  { value: "daily", label: "1D" },
-  { value: "weekly", label: "1W" },
-  { value: "monthly", label: "1M" },
+  { value: "1day", label: "1D" },
+  { value: "1week", label: "1W" },
+  { value: "1month", label: "1M" },
   { value: "3months", label: "3M" },
   { value: "6months", label: "6M" },
-  { value: "yearly", label: "1Y" },
+  { value: "1year", label: "1Y" },
   { value: "max", label: "Max" },
 ];
 

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { CandlestickSeries, createChart, IChartApi, ISeriesApi } from "lightweight-charts";
 import { getCandlestickConfig, getChartConfig, PERIOD_BUTTONS, PERIOD_CONFIG } from "@/constants";
+import { convertOHLCData, getOHLCDataFromResponse } from "@/lib/utils";
 import { fetcher } from "@/lib/coin-paprika.actions";
-import { convertOHLCData } from "@/lib/utils";
 
 const CandlestickChart = ({
   children,
@@ -23,19 +23,22 @@ const CandlestickChart = ({
 
   const fetchOHLCData = async (selectedPeriod: Period) => {
     try {
-      const { interval } = PERIOD_CONFIG[selectedPeriod];
+      console.log(selectedPeriod);
+      const { interval, endAt, startAt } = PERIOD_CONFIG[selectedPeriod];
 
-      const newData = await fetcher<OHLCData[]>(
+      const newData = await fetcher<OHLCResponse>(
         "/market/kline",
         {
           tradeType: "SPOT",
           symbol: coinSymbol,
           interval,
+          endAt,
+          startAt,
         },
         true,
       );
 
-      setOHLCData(newData ?? []);
+      setOHLCData(getOHLCDataFromResponse(newData) ?? []);
     } catch (error) {
       console.error("Failed to fetch OHLCData", error);
     }
@@ -57,7 +60,7 @@ const CandlestickChart = ({
 
     const showTime = ["1day", "1week", "1month"].includes(period);
     const chart = createChart(container, {
-      ...getChartConfig(height, showTime),
+      ...getChartConfig(height ?? 0, showTime),
       width: container.clientWidth,
     });
     const series = chart.addSeries(CandlestickSeries, getCandlestickConfig());
@@ -81,7 +84,16 @@ const CandlestickChart = ({
       chartRef.current = null;
       candleSeriesRef.current = null;
     };
-  }, [height, period]);
+  }, [height, period, ohlcData]);
+
+  useEffect(() => {
+    if (!candleSeriesRef.current) return;
+
+    const converted = convertOHLCData(ohlcData);
+
+    candleSeriesRef.current.setData(converted);
+    chartRef.current?.timeScale().fitContent();
+  }, [ohlcData, period]);
 
   return (
     <div id="candlestick-chart">

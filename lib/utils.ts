@@ -69,6 +69,12 @@ export function timeAgo(date: string | number | Date): string {
   return past.toISOString().split("T")[0];
 }
 
+export function getOHLCDataFromResponse({ data }: OHLCResponse) {
+  return data.list
+    .reverse()
+    .map((times) => times.map((time) => parseFloat(time.toString())) as OHLCData);
+}
+
 export function convertOHLCData(data: OHLCData[]) {
   return data
     .map((d) => ({
