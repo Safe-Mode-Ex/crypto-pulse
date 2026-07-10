@@ -1,4 +1,12 @@
-type OHLCData = [number, number, number, number, number];
+type OHLCRawData = [number, string, string, string, string, string, string];
+type OHLCData = [number, number, number, number, number, number, number];
+
+interface OHLCResponse {
+  code: number;
+  data: {
+    list: OHLCRawData[];
+  };
+}
 
 interface NextPageProps {
   params: Promise<{ [key: string]: string }>;
@@ -8,7 +16,7 @@ interface NextPageProps {
 interface CandlestickChartProps {
   data?: OHLCData[];
   liveOhlcv?: OHLCData | null;
-  coinId: string;
+  coinSymbol: string;
   height?: number;
   children?: React.ReactNode;
   mode?: "historical" | "live";
@@ -36,7 +44,7 @@ interface Ticker {
   trade_url: string;
 }
 
-type Period = "daily" | "weekly" | "monthly" | "3months" | "6months" | "yearly" | "max";
+type Period = "1day" | "1week" | "1month" | "3months" | "6months" | "1year" | "max";
 
 interface CoinMarketData {
   id: string;

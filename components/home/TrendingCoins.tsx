@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { fetcher } from "@/lib/coin-paprika.actions";
 import DataTable from "../DataTable";
 import { TrendingCoinsFallback } from "./fallback";
@@ -69,7 +69,7 @@ const TrendingCoins = async () => {
     {
       header: "Price",
       cellClassName: "price-cell",
-      cell: ({ quotes }) => formatPrice(quotes.USD.price),
+      cell: ({ quotes }) => formatCurrency(quotes.USD.price),
     },
   ];
 

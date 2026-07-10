@@ -1,19 +1,33 @@
 import Image from "next/image";
 import { fetcher } from "@/lib/coin-paprika.actions";
-import { formatPrice } from "@/lib/utils";
+import { formatCurrency, getOHLCDataFromResponse } from "@/lib/utils";
 import { CoinOverviewFallback } from "./fallback";
+import CandlestickChart from "../CandlestickChart";
 
 const CoinOverview = async () => {
   let coin: CoinDetailsData | null = null;
   let ticker: TickerDetailsData | null = null;
+  let coinOHLCData: OHLCData[];
 
   try {
     const results = await Promise.all([
       fetcher<CoinDetailsData>("/coins/btc-bitcoin"),
       fetcher<TickerDetailsData>("/tickers/btc-bitcoin"),
+      fetcher<OHLCResponse>(
+        "/market/kline",
+        {
+          tradeType: "SPOT",
+          symbol: "BTC-USDT",
+          interval: "1hour",
+        },
+        true,
+      ),
     ]);
+
     coin = results[0];
     ticker = results[1];
+    const coinOHLCRawData = results[2];
+    coinOHLCData = getOHLCDataFromResponse(coinOHLCRawData);
   } catch (error) {
     console.error("CoinOverview fetch failed:", error);
     return <CoinOverviewFallback />;
@@ -34,16 +48,18 @@ const CoinOverview = async () => {
 
   return (
     <div id="coin-overview">
-      <div className="header pt-2">
-        <Image src={coin.logo} width="56" height="56" alt={coin.name} />
+      <CandlestickChart data={coinOHLCData} coinSymbol="BTC-USDT">
+        <div className="header pt-2">
+          <Image src={coin.logo} width="56" height="56" alt={coin.name} />
 
-        <div className="info">
-          <p>
-            {coin.name} / {coin.symbol}
-          </p>
-          <h1>{formatPrice(ticker.quotes.USD.price)}</h1>
+          <div className="info">
+            <p>
+              {coin.name} / {coin.symbol}
+            </p>
+            <h1>{formatCurrency(ticker.quotes.USD.price)}</h1>
+          </div>
         </div>
-      </div>
+      </CandlestickChart>
     </div>
   );
 };
