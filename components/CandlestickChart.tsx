@@ -59,8 +59,9 @@ const CandlestickChart = ({
     if (!container) return;
 
     const showTime = ["1day", "1week", "1month"].includes(period);
+    console.log(container.clientHeight);
     const chart = createChart(container, {
-      ...getChartConfig(height ?? 0, showTime),
+      ...getChartConfig(height ?? container.clientHeight, showTime),
       width: container.clientWidth,
     });
     const series = chart.addSeries(CandlestickSeries, getCandlestickConfig());
@@ -74,7 +75,10 @@ const CandlestickChart = ({
     const observer = new ResizeObserver((entries) => {
       if (!entries.length) return;
 
-      chart.applyOptions({ width: entries[0].contentRect.width });
+      chart.applyOptions({
+        width: entries[0].contentRect.width,
+        height: entries[0].contentRect.height,
+      });
     });
     observer.observe(container);
 
