@@ -194,8 +194,17 @@ interface TickerDetailsData {
     USD: {
       price: number;
       percent_change_24h: number;
+      volume_24h: number;
+      market_cap: number;
+      market_cap_change_24h: number;
     };
   };
+}
+
+interface TagDetailsData {
+  id: string;
+  name: string;
+  coins: string[];
 }
 
 interface LiveDataProps {
@@ -217,10 +226,10 @@ interface LiveCoinHeaderProps {
 
 interface Category {
   name: string;
-  top_3_coins: string[];
-  market_cap_change_24h: number;
-  market_cap: number;
-  volume_24h: number;
+  topCoins: string[];
+  marketCapChange24h: number;
+  marketCap: number;
+  volume24h: number;
 }
 
 interface UseCoinGeckoWebSocketProps {

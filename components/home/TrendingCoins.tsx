@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, formatPercentage } from "@/lib/utils";
 import { fetcher } from "@/lib/coin-paprika.actions";
 import DataTable from "../DataTable";
 import { TrendingCoinsFallback } from "./fallback";
@@ -56,12 +56,14 @@ const TrendingCoins = async () => {
               "text-red-500": !isTrendingUp,
             })}
           >
-            {isTrendingUp ? (
-              <TrendingUp width="16" height="16" />
-            ) : (
-              <TrendingDown width="16" height="16" />
-            )}
-            <span>{pct.toFixed(2)}%</span>
+            <p className="flex items-center">
+              {isTrendingUp ? (
+                <TrendingUp width="16" height="16" />
+              ) : (
+                <TrendingDown width="16" height="16" />
+              )}
+              <span>{formatPercentage(pct)}</span>
+            </p>
           </div>
         );
       },

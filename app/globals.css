@@ -204,7 +204,7 @@
   }
 
   #candlestick-chart {
-    @apply p-3 mt-5 rounded-lg bg-dark-500;
+    @apply p-3 mt-5 rounded-lg bg-dark-500 flex flex-col h-full;
 
     .chart-header {
       @apply flex flex-col gap-3 xl:flex-row xl:items-center mb-4 font-semibold text-[#e6eef8] text-[20px];
@@ -223,7 +223,7 @@
     }
 
     .chart {
-      @apply w-full min-h-50;
+      @apply flex-1 w-full min-h-50;
     }
   }
 
@@ -812,7 +812,7 @@
   }
 
   #coin-overview {
-    @apply w-full h-full xl:col-span-2 px-2 bg-dark-500 rounded-xl;
+    @apply w-full h-full xl:col-span-2 px-2 bg-dark-500 rounded-xl flex flex-col;
 
     .header {
       @apply flex-1 mb-2 flex gap-2 md:gap-3;
