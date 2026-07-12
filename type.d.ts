@@ -50,28 +50,31 @@ interface CoinMarketData {
   id: string;
   symbol: string;
   name: string;
-  image: string;
-  current_price: number;
-  market_cap: number;
-  market_cap_rank: number;
-  fully_diluted_valuation: number;
-  total_volume: number;
-  high_24h: number;
-  low_24h: number;
-  price_change_24h: number;
-  price_change_percentage_24h: number;
-  market_cap_change_24h: number;
-  market_cap_change_percentage_24h: number;
+  rank: number;
   circulating_supply: number;
   total_supply: number;
   max_supply: number;
-  ath: number;
-  ath_change_percentage: number;
-  ath_date: string;
-  atl: number;
-  atl_change_percentage: number;
-  atl_date: string;
+  beta_value: number;
+  first_data_at: string;
   last_updated: string;
+  quotes: {
+    USD: {
+      price: number;
+      volume24h: number;
+      volume_24h_change_24h: number;
+      market_cap: number;
+      market_cap_change_24h: number;
+      percent_change_1h: number;
+      percent_change_12h: number;
+      percent_change_24h: number;
+      percent_change_7d: number;
+      percent_change_30d: number;
+      percent_change_1y: number;
+      ath_price: number;
+      ath_date: number;
+      percent_from_price_ath: number;
+    };
+  };
 }
 
 interface TrendingCoin {
@@ -238,6 +241,11 @@ interface UseCoinGeckoWebSocketProps {
   liveInterval?: "1s" | "1m";
 }
 
+interface CoinsTableProps {
+  initialPage: number;
+  coinsData: CoinMarketData[];
+}
+
 interface UseCoinGeckoWebSocketReturn {
   price: ExtendedPriceData | null;
   trades: Trade[];
@@ -275,6 +283,7 @@ interface Pagination {
   currentPage: number;
   totalPages: number;
   hasMorePages: boolean;
+  handlePageChange: (page: number) => void;
 }
 
 interface HeaderProps {

@@ -48,12 +48,13 @@ const TrendingCoins = async () => {
       cell: (coin) => {
         const pct = coin.quotes.USD.percent_change_24h;
         const isTrendingUp = pct > 0;
+        const isTrendingDown = pct < 0;
 
         return (
           <div
             className={cn("price-change flex flex-col items-center", {
               "text-green-500": isTrendingUp,
-              "text-red-500": !isTrendingUp,
+              "text-red-500": isTrendingDown,
             })}
           >
             <p className="flex items-center">

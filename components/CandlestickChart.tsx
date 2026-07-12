@@ -23,7 +23,6 @@ const CandlestickChart = ({
 
   const fetchOHLCData = async (selectedPeriod: Period) => {
     try {
-      console.log(selectedPeriod);
       const { interval, endAt, startAt } = PERIOD_CONFIG[selectedPeriod];
 
       const newData = await fetcher<OHLCResponse>(
@@ -59,7 +58,7 @@ const CandlestickChart = ({
     if (!container) return;
 
     const showTime = ["1day", "1week", "1month"].includes(period);
-    console.log(container.clientHeight);
+
     const chart = createChart(container, {
       ...getChartConfig(height ?? container.clientHeight, showTime),
       width: container.clientWidth,

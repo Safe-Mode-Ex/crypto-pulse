@@ -17,7 +17,7 @@ export function formatCurrency(
   }
 
   if (showSymbol === undefined || showSymbol === true) {
-    return value.toLocaleString(undefined, {
+    return value.toLocaleString("en-US", {
       style: "currency",
       currency: currency?.toUpperCase() || "USD",
       minimumFractionDigits: digits ?? 2,
@@ -40,11 +40,12 @@ export function formatPercentage(change: number | null | undefined): string {
 
 export function trendingClasses(value: number) {
   const isTrendingUp = value > 0;
+  const isTrendingDown = value < 0;
 
   return {
-    textClass: isTrendingUp ? "text-green-400" : "text-red-400",
-    bgClass: isTrendingUp ? "bg-green-500/10" : "bg-red-500/10",
-    iconClass: isTrendingUp ? "icon-up" : "icon-down",
+    textClass: isTrendingUp ? "text-green-400" : isTrendingDown ? "text-red-400" : "",
+    bgClass: isTrendingUp ? "bg-green-500/10" : isTrendingDown ? "bg-red-500/10" : "",
+    iconClass: isTrendingUp ? "icon-up" : isTrendingDown ? "icon-down" : "",
   };
 }
 
