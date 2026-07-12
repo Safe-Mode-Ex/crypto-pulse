@@ -75,12 +75,13 @@ const Categories = async () => {
       cell: (category: Category) => {
         const pct = category.marketCapChange24h;
         const isTrendingUp = pct > 0;
+        const isTrendingDown = pct < 0;
 
         return (
           <div
             className={cn("change-cell000 flex flex-col items-center", {
               "text-green-500": isTrendingUp,
-              "text-red-500": !isTrendingUp,
+              "text-red-500": isTrendingDown,
             })}
           >
             <p className="flex items-center">
