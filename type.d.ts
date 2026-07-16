@@ -1,5 +1,5 @@
 type OHLCRawData = [number, string, string, string, string, string, string];
-type OHLCData = [number, number, number, number, number, number, number];
+type OHLCData = [number, number, number, number, number, number?, number?];
 
 interface OHLCResponse {
   code: number;
