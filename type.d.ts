@@ -139,6 +139,7 @@ interface PriceData {
 }
 
 interface Trade {
+  id?: number;
   price?: number;
   timestamp?: number;
   type?: string;
@@ -157,24 +158,24 @@ interface ExtendedPriceData {
 }
 
 interface WebSocketMessage {
+  message?: string;
   type?: string;
-  c?: string;
-  ch?: string;
-  i?: string;
-  p?: number;
-  pp?: number;
-  pu?: number;
-  m?: number;
-  v?: number;
-  vo?: number;
-  o?: number;
-  h?: number;
-  l?: number;
-  t?: number;
-  to?: number;
-  ty?: string;
-  channel?: string;
-  identifier?: string;
+  T?: string;
+  d?: {
+    S?: string;
+    p?: string;
+    q?: string;
+    s?: string;
+    l?: string;
+    a?: string;
+    v?: string;
+    M?: number;
+    i?: string;
+    O?: string;
+    o?: string;
+    h?: string;
+    c?: string;
+  };
 }
 
 interface CoinDetailsData {
@@ -186,6 +187,16 @@ interface CoinDetailsData {
   is_active: boolean;
   type: string;
   logo: string;
+  links: {
+    explorer?: string[];
+    website?: string[];
+  };
+  links_extended: {
+    type: string;
+    url: string;
+  }[];
+  platform: string;
+  contract: string;
 }
 
 interface TickerDetailsData {
@@ -238,7 +249,7 @@ interface Category {
 interface UseCoinGeckoWebSocketProps {
   coinId: string;
   poolId: string;
-  liveInterval?: "1s" | "1m";
+  liveInterval?: string;
 }
 
 interface CoinsTableProps {
@@ -298,7 +309,7 @@ interface SearchItemProps {
   isActiveName: boolean;
 }
 
-interface CoinGeckoErrorBody {
+interface ErrorBody {
   error?: string;
 }
 
@@ -309,4 +320,22 @@ interface PoolData {
   address: string;
   name: string;
   network: string;
+  price?: number;
+  volume24h?: number;
+}
+
+interface CoinMarket {
+  exchange_id: string;
+  exchange_name: string;
+  pair: string;
+  base_currency_id: string;
+  quote_currency_id: string;
+  market_url?: string;
+  category?: string;
+  quotes?: {
+    USD?: {
+      price: number;
+      volume_24h: number;
+    };
+  };
 }

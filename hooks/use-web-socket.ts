@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 
-const WS_BASE = `${process.env.NEXT_PUBLIC_KUCOIN_WS_URL}`;
+const WS_BASE = `${process.env.NEXT_PUBLIC_KUCOIN_WSS_URL}`;
 
 export const useWebSocket = ({
   coinId,
@@ -9,6 +11,7 @@ export const useWebSocket = ({
 }: UseCoinGeckoWebSocketProps): UseCoinGeckoWebSocketReturn => {
   const wsRef = useRef<WebSocket | null>(null);
   const subscribed = useRef<Set<string>>(new Set());
+  const tradeSeq = useRef(0);
 
   const [price, setPrice] = useState<ExtendedPriceData | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -16,61 +19,90 @@ export const useWebSocket = ({
 
   const [isWsReady, setIsWsReady] = useState(false);
 
+  const interval = liveInterval || "1min";
+
   useEffect(() => {
+    if (!WS_BASE || WS_BASE === "undefined") return;
+
     const ws = new WebSocket(WS_BASE);
     wsRef.current = ws;
 
     const send = (payload: Record<string, unknown>) => ws.send(JSON.stringify(payload));
 
-    const handleMessage = (evt: MessageEvent) => {
-      const msg: WebSocketMessage = JSON.parse(evt.data);
+    const handleMessage = async (evt: MessageEvent) => {
+      let rawData: string | Blob = evt.data;
+
+      if (rawData instanceof Blob) {
+        rawData = await rawData.text();
+      }
+
+      const msg: WebSocketMessage = JSON.parse(rawData);
 
       if (msg.type === "ping") {
-        send({ type: "pong" });
+        send({ id: Date.now().toString(), type: "pong" });
         return;
       }
 
-      if (msg.type === "confirm_subscription") {
-        const { channel } = JSON.parse(msg.identifier ?? "");
-        subscribed.current.add(channel);
+      if (msg.message === "welcome") {
+        return;
       }
 
-      if (msg.c === "C1") {
+      const topicType: string = msg.T ?? "";
+      const dData = msg.d;
+
+      if (!dData) return;
+
+      if (topicType.includes("ticker")) {
+        const currentLivePrice = parseFloat(dData.l ?? dData.a ?? "0");
+
         setPrice({
-          usd: msg.p ?? 0,
-          coin: msg.i,
-          price: msg.p,
-          change24h: msg.pp,
-          marketCap: msg.m,
-          volume24h: msg.v,
-          timestamp: msg.t,
+          usd: currentLivePrice,
+          coin: dData.s ?? coinId,
+          price: currentLivePrice,
+          change24h: 0,
+          marketCap: 0,
+          volume24h: parseFloat(dData.v ?? "0"),
+          timestamp: dData.M ? Math.floor(Number(dData.M) / 1000000) : Date.now(),
         });
       }
 
-      if (msg.c === "G2") {
-        const newTrade: Trade = {
-          price: msg.pu,
-          value: msg.vo,
-          timestamp: msg.t ?? 0,
-          type: msg.ty,
-          amount: msg.to,
-        };
+      if (topicType.includes("trade")) {
+        const tradePrice = parseFloat(dData.p ?? "0");
+        const tradeAmount = parseFloat(dData.q ?? "0");
 
-        setTrades((prev) => [newTrade, ...prev].slice(0, 7));
+        if (tradePrice > 0 && tradeAmount > 0) {
+          const newTrade: Trade = {
+            id: ++tradeSeq.current,
+            price: tradePrice,
+            value: tradePrice * tradeAmount,
+            timestamp: dData.M ? Math.floor(Number(dData.M) / 1000000) : Date.now(),
+            type: dData.S?.toLowerCase() === "sell" ? "s" : "b",
+            amount: tradeAmount,
+          };
+
+          setTrades((prev) => [newTrade, ...prev].slice(0, 7));
+        }
       }
 
-      if (msg.ch === "G3") {
-        const timestamp = msg.t ?? 0;
+      if (topicType.includes("kline")) {
+        if (dData.i === interval) {
+          const rawTimestamp = parseInt(dData.O ?? "0");
 
-        const candle: OHLCData = [
-          timestamp,
-          Number(msg.o ?? 0),
-          Number(msg.h ?? 0),
-          Number(msg.l ?? 0),
-          Number(msg.c ?? 0),
-        ];
+          const isDaily =
+            interval.includes("day") ||
+            interval.includes("week") ||
+            interval.includes("month");
 
-        setOhlcv(candle);
+          const candle: OHLCData = [
+            isDaily ? rawTimestamp * 1000 : rawTimestamp,
+            parseFloat(dData.o ?? "0"),
+            parseFloat(dData.h ?? "0"),
+            parseFloat(dData.l ?? "0"),
+            parseFloat(dData.c ?? "0"),
+          ];
+
+          setOhlcv(candle);
+        }
       }
     };
 
@@ -78,8 +110,11 @@ export const useWebSocket = ({
     ws.onmessage = handleMessage;
     ws.onclose = () => setIsWsReady(false);
 
-    return () => ws.close();
-  }, []);
+    return () => {
+      ws.close();
+      setIsWsReady(false);
+    };
+  }, [coinId, interval]);
 
   useEffect(() => {
     if (!isWsReady) return;
@@ -91,28 +126,33 @@ export const useWebSocket = ({
     const send = (payload: Record<string, unknown>) => ws.send(JSON.stringify(payload));
 
     const unsubscribeAll = () => {
-      subscribed.current.forEach((channel) => {
+      subscribed.current.forEach((chKey) => {
+        const [channel, symbol] = chKey.split(":");
         send({
-          command: "unsubscribe",
-          identifier: JSON.stringify({ channel }),
+          id: Date.now().toString(),
+          action: "unsubscribe",
+          channel,
+          symbol,
+          tradeType: "SPOT",
         });
       });
 
       subscribed.current.clear();
     };
 
-    const subscribe = (channel: string, data?: Record<string, unknown>) => {
-      if (subscribed.current.has(channel)) return;
+    const subscribe = (channel: string, symbol: string, extraParams?: Record<string, unknown>) => {
+      const chKey = `${channel}:${symbol}`;
+      if (subscribed.current.has(chKey)) return;
 
-      send({ command: "subscribe", identifier: JSON.stringify({ channel }) });
-
-      if (data) {
-        send({
-          command: "message",
-          identifier: JSON.stringify({ channel }),
-          data: JSON.stringify(data),
-        });
-      }
+      send({
+        id: Date.now().toString(),
+        action: "subscribe",
+        channel,
+        symbol,
+        tradeType: "SPOT",
+        ...extraParams,
+      });
+      subscribed.current.add(chKey);
     };
 
     queueMicrotask(() => {
@@ -121,24 +161,22 @@ export const useWebSocket = ({
       setOhlcv(null);
 
       unsubscribeAll();
-      subscribe("CGSimplePrice", { coin_id: [coinId], action: "set_tokens" });
+
+      if (coinId) {
+        subscribe("ticker", coinId);
+        subscribe("trade", coinId);
+        subscribe("kline", coinId, { interval });
+      }
     });
 
     const poolAddress = poolId.replace("_", ":");
 
     if (poolAddress) {
-      subscribe("OnchanTrade", {
-        "network_id:pool_addresses": [poolAddress],
-        action: "set_pools",
-      });
-
-      subscribe("OnchanOHLCV", {
-        "network_id:pool_addresses": [poolAddress],
-        interval: liveInterval,
-        action: "set_pools",
-      });
+      subscribe("ticker", poolAddress);
+      subscribe("trade", poolAddress);
+      subscribe("kline", poolAddress, { interval });
     }
-  }, [coinId, poolId, isWsReady, liveInterval]);
+  }, [coinId, poolId, isWsReady, interval]);
 
   return { price, trades, ohlcv, isConnected: isWsReady };
 };

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn, formatCurrency, formatPercentage } from "@/lib/utils";
-import { fetcher } from "@/lib/coin-paprika.actions";
+import { fetcher } from "@/lib/coin-api.actions";
 import DataTable from "../DataTable";
 import { TrendingCoinsFallback } from "./fallback";
 

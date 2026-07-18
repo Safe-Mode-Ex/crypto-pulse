@@ -1,4 +1,4 @@
-import { fetcher } from "@/lib/coin-paprika.actions";
+import { fetcher } from "@/lib/coin-api.actions";
 import CoinsTable from "@/components/CoinsTable";
 
 const CoinsPage = async ({ searchParams }: NextPageProps) => {
