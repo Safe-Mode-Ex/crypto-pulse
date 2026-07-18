@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { fetcher } from "@/lib/coin-paprika.actions";
+import { fetcher } from "@/lib/coin-api.actions";
 import { formatCurrency, getOHLCDataFromResponse } from "@/lib/utils";
 import { CoinOverviewFallback } from "./fallback";
 import CandlestickChart from "../CandlestickChart";

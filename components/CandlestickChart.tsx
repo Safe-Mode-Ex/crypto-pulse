@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { CandlestickSeries, createChart, IChartApi, ISeriesApi } from "lightweight-charts";
 import { getCandlestickConfig, getChartConfig, PERIOD_BUTTONS, PERIOD_CONFIG } from "@/constants";
 import { convertOHLCData, getOHLCDataFromResponse } from "@/lib/utils";
-import { fetcher } from "@/lib/coin-paprika.actions";
+import { fetcher } from "@/lib/coin-api.actions";
 
 const CandlestickChart = ({
   children,
